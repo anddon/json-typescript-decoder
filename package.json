@@ -26,9 +26,9 @@
   "homepage": "https://github.com/Q42/json-typescript-decoder",
   "dependencies": {
     "@types/prettier": "^1.7.2",
-    "ajv": "^6.5.0",
+    "ajv": "^6.12.3",
     "ajv-pack": "^0.3.1",
-    "json-schema-to-typescript": "^5.5.0",
+    "json-schema-to-typescript": "^9.1.1",
     "lodash": "^4.17.10",
     "prettier": "^1.8.2",
     "tslint": "^5.9.1"
