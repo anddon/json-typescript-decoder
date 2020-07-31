@@ -2,12 +2,13 @@ import { compile as jsonSchemaToTypescript} from 'json-schema-to-typescript';
 import { lstatSync, existsSync, writeFile, mkdirSync, readFileSync } from 'fs';
 import { resolve, join, basename } from 'path';
 import { camelCase, upperFirst, size } from 'lodash'
-import * as Ajv from 'ajv';
+import Ajv from 'ajv';
 import { JSONSchema4 } from 'json-schema';
 import { Options as PrettierOptions } from 'prettier';
 import { Options as AjvOptions } from 'ajv';
 import { format as prettify } from 'prettier';
-const pack = require('ajv-pack');
+import pack from 'ajv-pack';
+
 const validatorFilePostfix = '.validate.js';
 
 export interface Options {
@@ -33,7 +34,7 @@ export async function generateFromFile(
 
 function writeFilePromise(file: string, data: string) {
   return new Promise(function (resolve, reject) {
-    const buffer = new Buffer(data, 'UTF-8');
+    const buffer = new Buffer(data, 'utf8');
     if (existsSync(file)) {
       // Compare the contents of the file before writing
       // We only write the file when the contents has changed to prevent compile events
@@ -45,7 +46,7 @@ function writeFilePromise(file: string, data: string) {
         return;
       }
     }
-    
+
     writeFile(file, data, function (err) {
       if (err) reject(err);
       else resolve(data);
@@ -74,9 +75,9 @@ export async function generate(
     throw new Error(`No definitions found`);
   }
 
-  const ajv = new Ajv({ 
-    ...options.ajvOptions, 
-    sourceCode: true, 
+  const ajv = new Ajv({
+    ...options.ajvOptions,
+    sourceCode: true,
     async: false,
   });
 
@@ -97,12 +98,12 @@ export async function generate(
 
 
     // Write code of definition to single file
-    if (options.pack) {
+    if (options.pack && validate) {
       const validatorFileName = `${name}${validatorFilePostfix}`;
       imports.push(`import * as ${name}$validate from './${validatorFileName}'`);
       decoders.push(decoderPack(name));
 
-      var moduleCode = pack(ajv, validate);
+      var moduleCode = pack(ajv as any, validate as any);
       writeFiles.push(writeFilePromise(join(outputFolder, validatorFileName), moduleCode));
     } else {
       decoders.push(decoderNoPack(name));
@@ -114,7 +115,7 @@ export async function generate(
   // Generate the typescript models from the json schema
   const model = await jsonSchemaToTypescript(schema, 'GeneratedContainerSchema', { unreachableDefinitions: true, style: options.style});
 
-  // Remove the empty container interface from the generated code 
+  // Remove the empty container interface from the generated code
   const cleanModel = model.replace(/export\s+interface\s+GeneratedContainerSchema\s+{[^\}]*\}/, '');
 
   const decoderName = options.decoderName || toSafeString(basename(outputFolder)) + 'Decoder';
@@ -177,7 +178,7 @@ function decode<T>(dataPath: string): (json: any) => T {
       const errorMessage = errors.map(error => \`\${error.dataPath} \${error.message}\`.trim()).join(', ') || 'unknown';
       throw new ${decoderName}Error(\`Error validating \${dataPath}: \${errorMessage}\`, json);
     }
-  
+
     return json as T;
   }
 }
@@ -198,7 +199,7 @@ function decode<T>(validator: (json: any) => boolean, dataPath: string): (json: 
       const errorMessage = errors.map(error => \`\${error.dataPath} \${error.message}\`.trim()).join(', ') || 'unknown';
       throw new ${decoderName}Error(\`Error validating \${dataPath}: \${errorMessage}\`, json);
     }
-  
+
     return json as T;
   }
 }
