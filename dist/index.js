@@ -92,7 +92,11 @@ function generate(schema, outputFolder, options) {
         }
         yield Promise.all(writeFiles);
         // Generate the typescript models from the json schema
-        const model = yield json_schema_to_typescript_1.compile(schema, 'GeneratedContainerSchema', { unreachableDefinitions: true, style: options.style });
+        const model = yield json_schema_to_typescript_1.compile(schema, 'GeneratedContainerSchema', {
+            enableConstEnums: false,
+            unreachableDefinitions: true,
+            style: options.style
+        });
         // Remove the empty container interface from the generated code
         const cleanModel = model.replace(/export\s+interface\s+GeneratedContainerSchema\s+{[^\}]*\}/, '');
         const decoderName = options.decoderName || toSafeString(path_1.basename(outputFolder)) + 'Decoder';

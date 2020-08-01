@@ -112,7 +112,11 @@ export async function generate(
   await Promise.all(writeFiles);
 
   // Generate the typescript models from the json schema
-  const model = await jsonSchemaToTypescript(schema, 'GeneratedContainerSchema', { unreachableDefinitions: true, style: options.style});
+  const model = await jsonSchemaToTypescript(schema, 'GeneratedContainerSchema', {
+    enableConstEnums: false,
+    unreachableDefinitions: true,
+    style: options.style
+  });
 
   // Remove the empty container interface from the generated code
   const cleanModel = model.replace(/export\s+interface\s+GeneratedContainerSchema\s+{[^\}]*\}/, '');
