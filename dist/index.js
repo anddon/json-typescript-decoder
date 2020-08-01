@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7,38 +8,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { compile as jsonSchemaToTypescript } from 'json-schema-to-typescript';
-import { lstatSync, existsSync, writeFile, mkdirSync, readFileSync } from 'fs';
-import { resolve, join, basename } from 'path';
-import { camelCase, upperFirst, size } from 'lodash';
-import Ajv from 'ajv';
-import { format as prettify } from 'prettier';
-import pack from 'ajv-pack';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generate = exports.generateFromFile = void 0;
+const json_schema_to_typescript_1 = require("json-schema-to-typescript");
+const fs_1 = require("fs");
+const path_1 = require("path");
+const lodash_1 = require("lodash");
+const ajv_1 = __importDefault(require("ajv"));
+const prettier_1 = require("prettier");
+const ajv_pack_1 = __importDefault(require("ajv-pack"));
 const validatorFilePostfix = '.validate.js';
-export function generateFromFile(inputFile, outputFolder, options) {
+function generateFromFile(inputFile, outputFolder, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!existsSync(inputFile)) {
+        if (!fs_1.existsSync(inputFile)) {
             throw new Error(`Input schema file ${inputFile} not found`);
         }
-        const schema = readFileSync(resolve(inputFile));
+        const schema = fs_1.readFileSync(path_1.resolve(inputFile));
         return generate(schema, outputFolder, options);
     });
 }
+exports.generateFromFile = generateFromFile;
 function writeFilePromise(file, data) {
     return new Promise(function (resolve, reject) {
         const buffer = new Buffer(data, 'utf8');
-        if (existsSync(file)) {
+        if (fs_1.existsSync(file)) {
             // Compare the contents of the file before writing
             // We only write the file when the contents has changed to prevent compile events
             // when running the typescript compiler in watch mode
-            var existingFile = readFileSync(file);
+            var existingFile = fs_1.readFileSync(file);
             if (existingFile.equals(buffer)) {
                 // The contents is the same, do not write the file and resolve the promise
                 resolve(data);
                 return;
             }
         }
-        writeFile(file, data, function (err) {
+        fs_1.writeFile(file, data, function (err) {
             if (err)
                 reject(err);
             else
@@ -46,21 +53,21 @@ function writeFilePromise(file, data) {
         });
     });
 }
-export function generate(schema, outputFolder, options) {
+function generate(schema, outputFolder, options) {
     return __awaiter(this, void 0, void 0, function* () {
         schema = { definitions: schema.definitions };
         options = options || {};
         options.pack = options.pack === undefined ? true : options.pack;
-        if (!existsSync(outputFolder)) {
-            mkdirSync(outputFolder);
+        if (!fs_1.existsSync(outputFolder)) {
+            fs_1.mkdirSync(outputFolder);
         }
-        if (!lstatSync(outputFolder).isDirectory()) {
+        if (!fs_1.lstatSync(outputFolder).isDirectory()) {
             throw new Error(`Output folder ${outputFolder} should be a directory`);
         }
-        if (!schema.definitions || size(schema.definitions) === 0) {
+        if (!schema.definitions || lodash_1.size(schema.definitions) === 0) {
             throw new Error(`No definitions found`);
         }
-        const ajv = new Ajv(Object.assign(Object.assign({}, options.ajvOptions), { sourceCode: true, async: false }));
+        const ajv = new ajv_1.default(Object.assign(Object.assign({}, options.ajvOptions), { sourceCode: true, async: false }));
         ajv.addSchema(schema, 'schema');
         const writeFiles = [];
         let imports = [];
@@ -76,8 +83,8 @@ export function generate(schema, outputFolder, options) {
                 const validatorFileName = `${name}${validatorFilePostfix}`;
                 imports.push(`import * as ${name}$validate from './${validatorFileName}'`);
                 decoders.push(decoderPack(name));
-                var moduleCode = pack(ajv, validate);
-                writeFiles.push(writeFilePromise(join(outputFolder, validatorFileName), moduleCode));
+                var moduleCode = ajv_pack_1.default(ajv, validate);
+                writeFiles.push(writeFilePromise(path_1.join(outputFolder, validatorFileName), moduleCode));
             }
             else {
                 decoders.push(decoderNoPack(name));
@@ -85,10 +92,10 @@ export function generate(schema, outputFolder, options) {
         }
         yield Promise.all(writeFiles);
         // Generate the typescript models from the json schema
-        const model = yield jsonSchemaToTypescript(schema, 'GeneratedContainerSchema', { unreachableDefinitions: true, style: options.style });
+        const model = yield json_schema_to_typescript_1.compile(schema, 'GeneratedContainerSchema', { unreachableDefinitions: true, style: options.style });
         // Remove the empty container interface from the generated code
         const cleanModel = model.replace(/export\s+interface\s+GeneratedContainerSchema\s+{[^\}]*\}/, '');
-        const decoderName = options.decoderName || toSafeString(basename(outputFolder)) + 'Decoder';
+        const decoderName = options.decoderName || toSafeString(path_1.basename(outputFolder)) + 'Decoder';
         // Generate the code including the fromJson methods
         let code;
         if (options.pack === true) {
@@ -98,13 +105,14 @@ export function generate(schema, outputFolder, options) {
             code = templateNoPack(cleanModel, decoders.join('\n'), decoderName, schema, options.ajvOptions);
         }
         // Prettify the generated code
-        const prettyCode = prettify(code, Object.assign({ parser: 'typescript' }, options.style));
+        const prettyCode = prettier_1.format(code, Object.assign({ parser: 'typescript' }, options.style));
         // Write the code to the output folder
-        yield writeFilePromise(join(outputFolder, 'index.ts'), prettyCode);
+        yield writeFilePromise(path_1.join(outputFolder, 'index.ts'), prettyCode);
     });
 }
+exports.generate = generate;
 function toSafeString(string) {
-    return upperFirst(camelCase(string));
+    return lodash_1.upperFirst(lodash_1.camelCase(string));
 }
 function decoderPack(name) {
     return `static ${name} = decode<${name}>(${name}$validate, '${name}');`;

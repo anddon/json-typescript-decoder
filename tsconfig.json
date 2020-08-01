@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "declaration": true,
-    // "lib": [
-    //   "es2015"
-    // ],
-    "module": "es6",
+    "lib": [
+      "es6"
+    ],
+    "module": "commonjs",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
