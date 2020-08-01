@@ -173,7 +173,7 @@ function decode<T>(validator: (json: any) => boolean, dataPath: string): (json: 
     if (!validator(json)) {
       const errors: any[] = ((validator as any).errors as any) || [];
       const errorMessage = errors.map(error => \`\${error.dataPath} \${error.message}\`.trim()).join(', ') || 'unknown';
-      throw new ${decoderName}Error(\`Error validating \${dataPath}: \${errorMessage}\`, json);
+      throw new ${decoderName}Error(\`Error validating \${dataPath}: \${errorMessage}\`, errors, json);
     }
 
     return json as T;
@@ -187,8 +187,9 @@ function decoder(decoders, decoderName) {
 export class ${decoderName}Error extends Error {
   readonly json: any;
 
-  constructor(message: string, json: any) {
+  constructor(message: string, errors?: any, json?: any) {
     super(message);
+    this.errors = errors;
     this.json = json;
   }
 }
