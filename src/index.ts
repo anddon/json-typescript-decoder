@@ -26,7 +26,7 @@ export async function generateFromFile(
   if (!existsSync(inputFile)) {
     throw new Error(`Input schema file ${inputFile} not found`);
   }
-  const schema = JSON.parse(readFileSync(resolve(inputFile, 'utf-8')).toString())
+  const schema = JSON.parse(readFileSync(resolve(inputFile), 'utf-8').toString())
 
   return generate(schema, outputFolder, options);
 }

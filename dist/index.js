@@ -26,7 +26,7 @@ function generateFromFile(inputFile, outputFolder, options) {
         if (!fs_1.existsSync(inputFile)) {
             throw new Error(`Input schema file ${inputFile} not found`);
         }
-        const schema = JSON.parse(fs_1.readFileSync(path_1.resolve(inputFile, 'utf-8')).toString());
+        const schema = JSON.parse(fs_1.readFileSync(path_1.resolve(inputFile), 'utf-8').toString());
         return generate(schema, outputFolder, options);
     });
 }
