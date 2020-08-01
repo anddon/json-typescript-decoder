@@ -26,7 +26,7 @@ export async function generateFromFile(
   if (!existsSync(inputFile)) {
     throw new Error(`Input schema file ${inputFile} not found`);
   }
-  const schema = readFileSync(resolve(inputFile))
+  const schema = JSON.parse(readFileSync(resolve(inputFile, 'utf-8')).toString())
 
   return generate(schema, outputFolder, options);
 }
@@ -91,7 +91,7 @@ export async function generate(
     const definition = schema.definitions[definitionKey];
 
     // Generate safe name (hopefullly matching that of json-schema-to-typescript)
-    const name = toSafeString(definition.title || definitionKey);
+    const name = toSafeString(definition.$id || definitionKey);
 
     const validate = ajv.getSchema(`schema#/definitions/${definitionKey}`);
 
