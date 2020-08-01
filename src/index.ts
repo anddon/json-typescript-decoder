@@ -91,7 +91,7 @@ export async function generate(
     const definition = schema.definitions[definitionKey];
 
     // Generate safe name (hopefullly matching that of json-schema-to-typescript)
-    const name = toSafeString(definition.tsType || definition.$id || definitionKey);
+    const name = definition.tsType || toSafeString(definition.$id || definitionKey);
 
     const validate = ajv.getSchema(`schema#/definitions/${definitionKey}`);
 
