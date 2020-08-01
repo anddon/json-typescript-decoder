@@ -99,7 +99,7 @@ export async function generate(
     // Write code of definition to single file
     if (options.pack && validate) {
       const validatorFileName = `${name}${validatorFilePostfix}`;
-      imports.push(`import * as ${name}$validate from './${validatorFileName}'`);
+      imports.push(`import ${name}$validate from './${validatorFileName}'`);
       decoders.push(decoderPack(name));
 
       var moduleCode = pack(ajv as any, validate as any);
@@ -148,7 +148,7 @@ function decoderNoPack(name: string) {
 
 function templateNoPack(models: string, decoders: string, decoderName: string, schema: JSONSchema4, ajvOptions?: AjvOptions) {
   return `
-/* tslint:disable */
+/* eslint-disable */
 import * as Ajv from 'ajv';
 
 ${models}
@@ -186,7 +186,7 @@ ${decoder(decoders, decoderName)}`;
 
 function templatePack(models: string, imports: string, decoders: string, decoderName: string) {
   return `
-/* tslint:disable */
+/* eslint-disable */
 ${imports}
 
 ${models}
