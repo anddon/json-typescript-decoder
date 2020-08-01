@@ -83,7 +83,7 @@ function generate(schema, outputFolder, options) {
                 const validatorFileName = `${name}${validatorFilePostfix}`;
                 imports.push(`import ${name}$validate from './${validatorFileName}'`);
                 decoders.push(decoderPack(name));
-                var moduleCode = ajv_pack_1.default(ajv, validate);
+                var moduleCode = `/* eslint-disable */\n` + ajv_pack_1.default(ajv, validate);
                 writeFiles.push(writeFilePromise(path_1.join(outputFolder, validatorFileName), moduleCode));
             }
             else {

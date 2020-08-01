@@ -102,7 +102,7 @@ export async function generate(
       imports.push(`import ${name}$validate from './${validatorFileName}'`);
       decoders.push(decoderPack(name));
 
-      var moduleCode = pack(ajv as any, validate as any);
+      var moduleCode = `/* eslint-disable */\n` + pack(ajv as any, validate as any);
       writeFiles.push(writeFilePromise(join(outputFolder, validatorFileName), moduleCode));
     } else {
       decoders.push(decoderNoPack(name));
