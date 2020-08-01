@@ -5,6 +5,7 @@
   "typings": "dist/index.d.ts",
   "author": "Thijs Suijten <thijs@q42.nl> (http://q42.com/)",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"
