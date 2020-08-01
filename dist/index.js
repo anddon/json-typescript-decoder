@@ -99,14 +99,15 @@ function generate(schema, outputFolder, options) {
         });
         // Remove the empty container interface from the generated code
         const cleanModel = model.replace(/export\s+interface\s+GeneratedContainerSchema\s+{[^\}]*\}/, '');
+        const typedModel = cleanModel.replace(/export interface (\w+) {/g, 'export type $1 = {');
         const decoderName = options.decoderName || toSafeString(path_1.basename(outputFolder)) + 'Decoder';
         // Generate the code including the fromJson methods
         let code;
         if (options.pack === true) {
-            code = templatePack(cleanModel, imports.join('\n'), decoders.join('\n'), decoderName);
+            code = templatePack(typedModel, imports.join('\n'), decoders.join('\n'), decoderName);
         }
         else {
-            code = templateNoPack(cleanModel, decoders.join('\n'), decoderName, schema, options.ajvOptions);
+            code = templateNoPack(typedModel, decoders.join('\n'), decoderName, schema, options.ajvOptions);
         }
         // Prettify the generated code
         const prettyCode = prettier_1.format(code, Object.assign({ parser: 'typescript' }, options.style));
@@ -186,6 +187,7 @@ function decoder(decoders, decoderName) {
     return `
 export class ${decoderName}Error extends Error {
   readonly json: any;
+  readonly errors: any[];
 
   constructor(message: string, errors?: any, json?: any) {
     super(message);
