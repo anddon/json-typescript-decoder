@@ -26,8 +26,7 @@ export async function generateFromFile(
   if (!existsSync(inputFile)) {
     throw new Error(`Input schema file ${inputFile} not found`);
   }
-
-  const schema = require(resolve(inputFile));
+  const schema = readFileSync(resolve(inputFile))
 
   return generate(schema, outputFolder, options);
 }

@@ -20,7 +20,7 @@ export function generateFromFile(inputFile, outputFolder, options) {
         if (!existsSync(inputFile)) {
             throw new Error(`Input schema file ${inputFile} not found`);
         }
-        const schema = require(resolve(inputFile));
+        const schema = readFileSync(resolve(inputFile));
         return generate(schema, outputFolder, options);
     });
 }
