@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "lib": [
-      "es2015"
-    ],
-    "module": "commonjs",
+    // "lib": [
+    //   "es2015"
+    // ],
+    "module": "es6",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
@@ -15,6 +15,6 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "es5"
+    "target": "es6"
   }
 }
