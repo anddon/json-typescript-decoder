@@ -115,6 +115,7 @@ export async function generate(
   const model = await jsonSchemaToTypescript(schema, 'GeneratedContainerSchema', {
     enableConstEnums: false,
     unreachableDefinitions: true,
+    strictIndexSignatures: false,
     style: options.style
   });
 

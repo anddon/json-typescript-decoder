@@ -95,6 +95,7 @@ function generate(schema, outputFolder, options) {
         const model = yield json_schema_to_typescript_1.compile(schema, 'GeneratedContainerSchema', {
             enableConstEnums: false,
             unreachableDefinitions: true,
+            strictIndexSignatures: false,
             style: options.style
         });
         // Remove the empty container interface from the generated code
